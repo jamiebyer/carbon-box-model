@@ -44,12 +44,12 @@ n_boxes = 9
 
 if n_boxes == 4:
     M_init = np.array([M1, M2, M5, M7])
-    F_init = np.genfromtxt('./four_box_fluxes.csv',
+    F_init = np.genfromtxt('data/four_box_fluxes.csv',
                            delimiter=','
                            )
 else:
     M_init = np.array([M1, M2, M3, M4, M5, M6, M7, M8, M9])
-    F_init = np.genfromtxt('./nine_box_fluxes.csv',
+    F_init = np.genfromtxt('data/nine_box_fluxes.csv',
                            delimiter=','
                            )
 
