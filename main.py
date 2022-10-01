@@ -1,6 +1,4 @@
-from emissions import emissions
-from func_rk4 import rk4
-from euler_method import euler_method
+from utilities.emissions import emissions
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +12,7 @@ M2 = 725
 M5 = 110
 M7 = 60
 M3 = 3
-M4 = 37675
+M4 = 376.75
 M6 = 450
 M8 = 1350
 M9 = 160
@@ -43,11 +41,15 @@ M9 = 160
 n_boxes = 9
 
 if n_boxes == 4:
+    title_string = "four box model"
+    print("computing four box model")
     M_init = np.array([M1, M2, M5, M7])
     F_init = np.genfromtxt('data/four_box_fluxes.csv',
                            delimiter=','
                            )
 else:
+    title_string = "nine box model"
+    print("computing nine box model")
     M_init = np.array([M1, M2, M3, M4, M5, M6, M7, M8, M9])
     F_init = np.genfromtxt('data/nine_box_fluxes.csv',
                            delimiter=','
@@ -57,28 +59,28 @@ else:
 k = np.divide(F_init, M_init)
 
 
+# todo: migrate to odes.py
 # Function used by integrators
 def dMdt(t, M):
     """
-    t: float, time.
-    M: size 4 or 9 array, masses of carbon in boxes 1, 2, 5, 7.
+    t: float (scalar), time.
+    M: size 4 or 9 array, masses of carbon in boxes 1, 2, 5, 7, (3, 4, 6, 8, 9).
 
-    dMdt: size 4 or 9 array, change in mass for boxes 1, 2, 5, 7.
+    dMdt: size 4 or 9 array, change in mass for boxes 1, 2, 5, 7, (3, 4, 6, 8, 9).
     """
-    # M1, M2, M5, M7 = M
-    # M1, M2, M3, M4, M5, M6, M7, M8, M9 = M
 
     # Update values for fluxes from mass.
     F = np.multiply(k, M)
 
-    F_in = np.sum(F, axis=1)
-    F_out = np.sum(F, axis=0)
+    F_in = np.sum(F, axis=1)  # row-wise for in-flux
+    F_out = np.sum(F, axis=0)  # column-wise for out-flux
 
     dMdt = F_in - F_out
 
     # From step 0.1, add an arbitrary flux C (in Gt/yr)
     if add_flux_C:
         T = 0.1 / (2 * np.pi)
+        # T = 100 / (2 * np.pi)
         C = (20 / T) * (np.sin(t / T))
     else:
         C = 0
@@ -88,22 +90,23 @@ def dMdt(t, M):
     else:
         e = 0
 
-    # add arbitrary flux to first slot, the atmosphere box
+    # add forcing fluxes to first slot: the atmosphere box
     dMdt[0] += C + e
 
     return dMdt
 
 
+# todo: migrate to plotters.py
 def plot_integrator_results(title_string):
     # Time interval for integration
     t_min = 0
     t_max = 2500
     # Number of points in time array (only used for rk4)
     n = 1000
-    max_step = 10
+    max_step = 1e-2
 
     t1 = time.time()
-    t_rk4, M_rk4 = rk4(fxy=dMdt, x0=t_min, xf=t_max, y0=M_init, N=n)
+    # t_rk4, M_rk4 = rk4(fxy=dMdt, x0=t_min, xf=t_max, y0=M_init, N=n)
 
     t2 = time.time()
     rk23_sol = solve_ivp(fun=dMdt, t_span=(t_min, t_max), y0=M_init, method="RK23", max_step=max_step)
@@ -118,7 +121,8 @@ def plot_integrator_results(title_string):
     lsoda_sol = solve_ivp(fun=dMdt, t_span=(t_min, t_max), y0=M_init, method="LSODA", max_step=max_step)
 
     t6 = time.time()
-    t_euler, M_euler = euler_method(fxy=dMdt, x0=t_min, xf=t_max, y0=M_init, N=n)
+    bdf_sol = solve_ivp(fun=dMdt, t_span=(t_min, t_max), y0=M_init, method="BDF", max_step=max_step)
+    # t_euler, M_euler = euler_method(fxy=dMdt, x0=t_min, xf=t_max, y0=M_init, N=n)
     t7 = time.time()
 
     # Get time taken for each integrator to perform integration.
@@ -127,13 +131,18 @@ def plot_integrator_results(title_string):
     deltat_rk45 = t4 - t3
     deltat_dop853 = t5 - t4
     deltat_lsoda = t6 - t5
+    deltat_bdf = t7 - t6
     deltat_euler = t7 - t6
 
     # Arrays to loop over and plot each integration type.
-    all_t = [t_rk4, rk23_sol.t, rk45_sol.t, dop853_sol.t, lsoda_sol.t, t_euler]
-    all_M = [M_rk4.real, rk23_sol.y.T, rk45_sol.y.T, dop853_sol.y.T, lsoda_sol.y.T, M_euler]
-    deltat = [deltat_rk4, deltat_rk23, deltat_rk45, deltat_dop853, deltat_lsoda, deltat_euler]
-    plot_types = ["(Given) RK4", "RK23", "RK45", "DOP853", "LSODA", "Euler"]
+    all_t = [rk23_sol.t, rk45_sol.t, dop853_sol.t, lsoda_sol.t, bdf_sol.t]
+    all_M = [rk23_sol.y.T, rk45_sol.y.T, dop853_sol.y.T, lsoda_sol.y.T, bdf_sol.y.T]
+    deltat = [deltat_rk23, deltat_rk45, deltat_dop853, deltat_lsoda, deltat_bdf]
+    plot_types = ["RK23", "RK45", "DOP853", "LSODA", "BDF"]
+    # all_t = [t_rk4, rk23_sol.t, rk45_sol.t, dop853_sol.t, lsoda_sol.t, t_euler]
+    # all_M = [M_rk4.real, rk23_sol.y.T, rk45_sol.y.T, dop853_sol.y.T, lsoda_sol.y.T, M_euler]
+    # deltat = [deltat_rk4, deltat_rk23, deltat_rk45, deltat_dop853, deltat_lsoda, deltat_euler]
+    # plot_types = ["(Given) RK4", "RK23", "RK45", "DOP853", "LSODA", "Euler"]
 
     # Plotting    
     fig, ax = plt.subplots()
@@ -146,24 +155,36 @@ def plot_integrator_results(title_string):
         plt.title(plot_types[ii] + ", delta t = " + "{:.2E}".format(deltat[ii]) + "s")
 
     plt.suptitle(title_string)
-    fig.legend(['atmosphere', 'surface water', 'short-lived biota', 'litter'], loc="lower right")
+    fig.legend(['atmosphere',
+                'surface water',
+                'surface biota',
+                'intermediate and deep water',
+                'short-lived biota',
+                'long-lived biota',
+                'litter',
+                'soil', 'peat'], loc="lower right")
     plt.tight_layout()
 
     plt.show()
 
 
+# todo: migrate to config
 # Plot integration for 4 box model
 
 # add_flux_C = True
-add_flux_C = False
+add_flux_C = True
 # add_emissions = True
-add_emissions = False
-
-title_string = "4 box model"
+add_emissions = True
 
 if add_flux_C:
     title_string += ", add sinusoidal flux C"
 if add_emissions:
     title_string += ", add emissions"
 
-plot_integrator_results(title_string)
+
+def main():
+    plot_integrator_results(title_string)
+
+
+if __name__ == '__main__':
+    main()
