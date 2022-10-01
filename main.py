@@ -16,27 +16,6 @@ M4 = 376.75
 M6 = 450
 M8 = 1350
 M9 = 160
-# Array of initial masses for each box.
-
-
-# # Fluxes in Gt/yr (Fab is the flux from box a to box b)
-# F12 = 90
-# F21 = 90
-# F71 = 55
-# F57 = 55
-# F15 = 110
-# F51 = 55
-# F72 = 0
-#
-# F11, F22, F52, F25, F55, F75, F17, F27, F77 = np.zeros(9)
-#
-# # F matrix
-# F_init = [
-#     [F11, F21, F51, F71],
-#     [F12, F22, F52, F72],
-#     [F15, F25, F55, F75],
-#     [F17, F27, F57, F77],
-# ]
 
 n_boxes = 9
 
@@ -103,6 +82,7 @@ def plot_integrator_results(title_string):
     t_max = 2500
     # Number of points in time array (only used for rk4)
     n = 1000
+    # max_step turned way down to get different solvers to match in nine box
     max_step = 1e-2
 
     t1 = time.time()
@@ -187,4 +167,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # todo: use argparse
     main()
