@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import time
 from scipy.integrate import solve_ivp
 from utilities.odes import dm_dt
+from utilities.func_rk4 import rk4
+from utilities.euler_method import euler_method
 
 
 def plot_integrator_results(title_string, args: tuple):
@@ -9,13 +11,15 @@ def plot_integrator_results(title_string, args: tuple):
     t_min = 0
     t_max = 2500
     # Number of points in time array (only used for rk4)
-    n = 1000
-    # dialed max_step down for nine boxes
-    max_step = 10
+    n = 10000
+    # max_step = 10
+    max_step = 1e-2  # dialed max_step down for nine boxes
     M_init, k, add_flux_c, add_emissions = args
 
+    # todo: pickle these results for 4- and 9-boxes
     t1 = time.time()
-    # t_rk4, M_rk4 = rk4(fxy=dm_dt, x0=t_min, xf=t_max, y0=M_init, N=n)
+    # t_rk4, M_rk4 = rk4(fxy=dm_dt, x0=t_min, xf=t_max, y0=M_init,
+    #                    N=n, args=(k, add_flux_c, add_emissions))
 
     t2 = time.time()
     rk23_sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=M_init,
@@ -63,7 +67,7 @@ def plot_integrator_results(title_string, args: tuple):
 
     for ii in range(len(plot_types)):
         plt.subplot(3, 2, ii + 1)
-        plt.plot(all_t[ii], all_M[ii])
+        plt.plot(all_t[ii], all_M[ii][:, [0, 1]])  # plotting [0, 1] for just forced atmosphere and surface ocean water
         plt.xlabel('Time (yr)')
         plt.ylabel('Mass (Gt)')
         plt.title(plot_types[ii] + ", delta t = " + "{:.2E}".format(deltat[ii]) + "s")
@@ -71,12 +75,13 @@ def plot_integrator_results(title_string, args: tuple):
     plt.suptitle(title_string)
     fig.legend(['atmosphere',
                 'surface water',
-                'surface biota',
-                'intermediate and deep water',
-                'short-lived biota',
-                'long-lived biota',
-                'litter',
-                'soil', 'peat'], loc="lower right")
+                # 'surface biota',
+                # 'intermediate and deep water',
+                # 'short-lived biota',
+                # 'long-lived biota',
+                # 'litter',
+                # 'soil', 'peat'
+               ], loc="lower right")
     plt.tight_layout()
 
     plt.show()

@@ -23,7 +23,8 @@ def rk4(fxy, x0, xf, y0, N):
     h = (xf - x0) / N
     X = np.zeros((N+1, 1))
     M = np.max(np.shape(y0))
-    Y = np.zeros((N+1, M))*1j  # make complex by multiplying by 1j; this way can add complex values to this during integration
+    Y = np.zeros((N+1, M))*1j  # make complex by multiplying by 1j;
+    # this way can add complex values to this during integration
 
     # set initial conditions
     x = x0
@@ -34,7 +35,7 @@ def rk4(fxy, x0, xf, y0, N):
     # begin computational loop
     for ii in range(N):
         # evaluate function fxy; depending on equation, k1-4 can be complex; this is why we make Y and y complex as well
-        k1 = np.array([h * val for val in fxy(x, y)])
+        k1 = np.array([h * val for val in fxy(x, y)])  # todo: include additional params in fxy call
         k2 = np.array([h * val for val in fxy(x+h/2, y+k1/2)])
         k3 = np.array([h * val for val in fxy(x+h/2, y+k2/2)])
         k4 = np.array([h * val for val in fxy(x+h, y+k3)])
