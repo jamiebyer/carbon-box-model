@@ -37,7 +37,6 @@ if add_emissions:
 
 
 def main():
-    # todo: plot only from 1800 to 2200 for observation
     plot_integrator_results(title_string, args=(initial_masses, k, add_flux_C, add_emissions))
 
 
