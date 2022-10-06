@@ -88,5 +88,6 @@ def plot_integrator_results(title_string, args: tuple):
                 # 'soil', 'peat'
                 ], loc="center right")
     plt.tight_layout()
+    plt.savefig(f"figures/nine_box_long_wavelength_v1.png")
 
     plt.show()
