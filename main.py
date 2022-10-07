@@ -2,7 +2,8 @@ import argparse
 import os
 
 import numpy as np
-from utilities.plotters import plot_integrator_results
+from utilities.plotters import plot_integrator_results, plot_emissions_models
+from utilities.emissions import emissions
 
 n_boxes = 9
 
@@ -38,6 +39,7 @@ if add_emissions:
 
 def main():
     plot_integrator_results(title_string, args=(initial_masses, k, add_flux_C, add_emissions))
+    #plot_emissions_models()
 
 
 if __name__ == '__main__':

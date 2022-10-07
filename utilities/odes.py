@@ -20,15 +20,17 @@ def dm_dt(time, mass_array, k, add_flux_c, add_emissions):
 
     # From step 0.1, add an arbitrary flux C (in Gt/yr)
     if add_flux_c:
-        # T = 0.1 / (2 * np.pi)  # short wavelength
-        T = 100 / (2 * np.pi)  # long wavelength
-        carbon_forcing = (20 / T) * (np.sin(time / T))
-        # carbon_forcing = np.exp(-time) * (np.sin(time / T))  # exponential decay
+
+        # T = 0.1  # short wavelength
+        T = 100  # long wavelength
+        carbon_forcing = (20 / T) * (np.sin((2*np.pi*time) / T))
+        carbon_forcing = (20 / T) * (np.sin((2*np.pi*time) / T))
+        # carbon_forcing = np.exp(-time) * (np.sin((2*np.pi*time) / T))  # exponential decay
     else:
         carbon_forcing = 0
 
     if add_emissions:
-        emission_array = emissions([time])[0]
+        emission_array = emissions([time], model="A2")[0]
     else:
         emission_array = 0
 

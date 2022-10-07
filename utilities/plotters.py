@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import time
+import json
+import pandas as pd
 from scipy.integrate import solve_ivp
 from utilities.odes import dm_dt
 from utilities.func_rk4 import rk4
@@ -91,3 +93,22 @@ def plot_integrator_results(title_string, args: tuple):
     plt.savefig(f"figures/nine_box_long_wavelength_v1.png")
 
     plt.show()
+
+def plot_emissions_models():
+    with open('data/models/models.json') as json_file:
+        models = json.load(json_file)
+
+    df = pd.read_csv("./data/model-data.csv")
+
+    model_names = list(models.keys()) + ["A2"]
+    for model in model_names:
+        plt.plot(df[model + "_times"], df[model + "_emissions"])
+    
+    plt.legend(model_names)
+    plt.xlim([2010, 2100])
+    
+    plt.title("Carbon emissions from various models")
+    plt.xlabel("Time")
+    plt.ylabel("Carbon Emissions (Gt/yr)")
+    plt.show()
+    

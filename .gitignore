@@ -1,3 +1,4 @@
 /data/four_box_fluxes copy.csv
 /figures/nine_box_long_wavelength_v1.png
-/data/models
+/data/models/*
+!/data/models/models.json
