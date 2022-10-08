@@ -2,82 +2,75 @@ import matplotlib.pyplot as plt
 import time
 import json
 import pandas as pd
+import numpy as np
 from scipy.integrate import solve_ivp
 from utilities.odes import dm_dt
 from utilities.func_rk4 import rk4
 from utilities.euler_method import euler_method
+from utilities.emissions import emissions
 
 
 def plot_integrator_results(title_string, args: tuple):
     # Time interval for integration
     t_min = 1850
     t_max = 2300
-    # Number of points in time array (only used for rk4)
+    # Number of points in time array (used for rk4, euler)
     n = 10000
     # max_step = 10
     max_step = 1e-3  # dialed max_step down for nine boxes
-    m_init, k, add_flux_c, add_emissions = args
+    m_init, k, emissions_models, integrators = args
 
     # todo: pickle these results for 4- and 9-boxes
-    t1 = time.time()
-    # t_rk4, M_rk4 = rk4(fxy=dm_dt, x0=t_min, xf=t_max, y0=m_init,
-    #                    N=n, args=(k, add_flux_c, add_emissions))
+    all_t = []
+    all_M = []
+    delta_t = []
+    plot_titles = []
 
-    t2 = time.time()
-    # rk23_sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=m_init,
-    #                      method="RK23", max_step=max_step, args=(k, add_flux_c, add_emissions))
-
-    t3 = time.time()
-    # rk45_sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=m_init,
-    #                      method="RK45", max_step=max_step, args=(k, add_flux_c, add_emissions))
-
-    t4 = time.time()
-    # dop853_sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=m_init,
-    #                        method="DOP853", max_step=max_step, args=(k, add_flux_c, add_emissions))
-
-    t5 = time.time()
-    lsoda_sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=m_init,
-                          method="LSODA", max_step=max_step, args=(k, add_flux_c, add_emissions))
-
-    t6 = time.time()
-    # bdf_sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=m_init,
-    #                     method="BDF", max_step=max_step, args=(k, add_flux_c, add_emissions))
-    # t_euler, M_euler = euler_method(fxy=dm_dt, x0=t_min, xf=t_max, y0=M_init, N=n)
-    t7 = time.time()
-
-    # Get time taken for each integrator to perform integration.
-    deltat_rk4 = t2 - t1
-    deltat_rk23 = t3 - t2
-    deltat_rk45 = t4 - t3
-    deltat_dop853 = t5 - t4
-    deltat_lsoda = t6 - t5
-    deltat_bdf = t7 - t6
-    deltat_euler = t7 - t6
-
-    # Arrays to loop over and plot each integration type.
-    # all_t = [rk23_sol.t, rk45_sol.t, dop853_sol.t, lsoda_sol.t, bdf_sol.t]
-    # all_M = [rk23_sol.y.T, rk45_sol.y.T, dop853_sol.y.T, lsoda_sol.y.T, bdf_sol.y.T]
-    # deltat = [deltat_rk23, deltat_rk45, deltat_dop853, deltat_lsoda, deltat_bdf]
-    # plot_types = ["RK23", "RK45", "DOP853", "LSODA", "BDF"]
-    all_t = [lsoda_sol.t, ]
-    all_M = [lsoda_sol.y.T]
-    deltat = [deltat_lsoda]
-    plot_types = ["LSODA"]
-    # all_t = [t_rk4, rk23_sol.t, rk45_sol.t, dop853_sol.t, lsoda_sol.t, t_euler]
-    # all_M = [M_rk4.real, rk23_sol.y.T, rk45_sol.y.T, dop853_sol.y.T, lsoda_sol.y.T, M_euler]
-    # deltat = [deltat_rk4, deltat_rk23, deltat_rk45, deltat_dop853, deltat_lsoda, deltat_euler]
-    # plot_types = ["(Given) RK4", "RK23", "RK45", "DOP853", "LSODA", "Euler"]
+    for integ in integrators:
+        for model in emissions_models:
+            if integ == "rk4":
+                t_start = time.time()
+                t, M = rk4(fxy=dm_dt, x0=t_min, xf=t_max, y0=m_init, N=n, args=(k, model))
+                t_end = time.time()
+            elif integ == "euler":
+                t_start = time.time()
+                t, M = euler_method(fxy=dm_dt, x0=t_min, xf=t_max, y0=m_init, N=n, args=(k, model))
+                t_end = time.time()
+            else:
+                t_start = time.time()
+                sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=m_init, method=integ, max_step=max_step, args=(k, model))
+                t_end = time.time()
+                t = sol.t
+                M = sol.y.T
+            
+            all_t.append(t)
+            all_M.append(M)
+            delta_t.append(t_end-t_start)
+            plot_titles.append(integ + ", " + model.replace("_", " "))
 
     # Plotting
-    # fig, ax = plt.subplots()
-    fig = plt.figure(figsize=(9, 4), dpi=150)
+    n_plots = len(plot_titles)
+    if n_plots > 1:
+        fig, ax = plt.subplots()
+        if n_plots <= 3:
+            n_rows = 1
+            n_cols = n_plots
+        else:
+            n_cols = 3
+            n_rows = int(np.ceil(n_plots/n_cols))
 
-    for ii in range(len(plot_types)):
-        # plt.subplot(3, 2, ii + 1)
-        plt.plot(all_t[ii], all_M[ii][:, [0, 1]])  # plotting [0, 1] for just forced atmosphere and surface ocean water
+        for ii in range(n_plots):
+            plt.subplot(n_rows, n_cols, ii + 1)
+            plt.plot(all_t[ii], all_M[ii][:, [0, 1]])  # plotting [0, 1] for just forced atmosphere and surface ocean water
+            plt.xlabel('Time (yr)')
+            plt.ylabel('Mass (Gt)')
+            plt.title(plot_titles[ii] + ", delta t = " + "{:.2E}".format(delta_t[ii]) + "s")
+    else:
+        fig = plt.figure(figsize=(9, 4), dpi=150)
+        plt.plot(all_t[0], all_M[0][:, [0, 1]])  # plotting [0, 1] for just forced atmosphere and surface ocean water
         plt.xlabel('Time (yr)')
         plt.ylabel('Mass (Gt)')
-        plt.title(plot_types[ii] + ", delta t = " + "{:.2E}".format(deltat[ii]) + "s")
+        plt.title(plot_titles[0] + ", delta t = " + "{:.2E}".format(delta_t[0]) + "s")
 
     plt.suptitle(title_string)
     fig.legend(['atmosphere',
@@ -99,16 +92,28 @@ def plot_emissions_models():
         models = json.load(json_file)
 
     df = pd.read_csv("./data/model-data.csv")
+    
+    plt.subplot(1, 2, 1)
+    t = np.linspace(2010, 2100, 1000)
+    #t = np.linspace(0, 100, 1000)
+    eq_names = ["short_sine", "long_sine", "short_exp", "long_exp"]
+    for model in eq_names:
+        plt.plot(t, emissions(t, model))
+    #plt.legend(["short sinusoidal", "long sinusoidal", "short exponential", "long exponential"])
+    plt.title("Emissions from equations")
 
-    model_names = list(models.keys()) + ["A2"]
+    plt.subplot(1, 2, 2)
+    model_names = list(models.keys()) + ["IPCC-A2"]
     for model in model_names:
-        plt.plot(df[model + "_times"], df[model + "_emissions"])
+        mod_id, exp_id = model.split('_')
+        plt.plot(df[model + "_times"], df[model + "_emissions"], alpha=0.5, label=mod_id+", "+exp_id)
     
-    plt.legend(model_names)
+    plt.legend()
     plt.xlim([2010, 2100])
-    
-    plt.title("Carbon emissions from various models")
+    plt.title("Emissions from models")
     plt.xlabel("Time")
-    plt.ylabel("Carbon Emissions (Gt/yr)")
+    plt.ylabel("Carbon emissions (Gt/yr)")
+    
+    plt.suptitle("Carbon emissions")
     plt.show()
     

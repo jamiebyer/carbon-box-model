@@ -15,7 +15,7 @@
 import numpy as np
 
 
-def rk4(fxy, x0, xf, y0, N):
+def rk4(fxy, x0, xf, y0, N, args):
 
     # compute step size and size of output variables
     if N < 2:
@@ -35,10 +35,10 @@ def rk4(fxy, x0, xf, y0, N):
     # begin computational loop
     for ii in range(N):
         # evaluate function fxy; depending on equation, k1-4 can be complex; this is why we make Y and y complex as well
-        k1 = np.array([h * val for val in fxy(x, y)])  # todo: include additional params in fxy call
-        k2 = np.array([h * val for val in fxy(x+h/2, y+k1/2)])
-        k3 = np.array([h * val for val in fxy(x+h/2, y+k2/2)])
-        k4 = np.array([h * val for val in fxy(x+h, y+k3)])
+        k1 = np.array([h * val for val in fxy(x, y, *args)])  # todo: include additional params in fxy call
+        k2 = np.array([h * val for val in fxy(x+h/2, y+k1/2, *args)])
+        k3 = np.array([h * val for val in fxy(x+h/2, y+k2/2, *args)])
+        k4 = np.array([h * val for val in fxy(x+h, y+k3, *args)])
         
         y += (k1 + 2*k2 + 2*k3 + k4) / 6.
         x += h

@@ -44,8 +44,6 @@ def year_fraction(date):
 df = pd.DataFrame()
 
 for model, mod_dict in models.items():
-    #mod_id, exp_id = model.split('_')
-
     # Get year spacing to consolidate data split over many files
     year_min = mod_dict["year_range"][0]
     year_max = mod_dict["year_range"][1]
@@ -84,20 +82,13 @@ for model, mod_dict in models.items():
     df = pd.concat([df, pd.DataFrame(
         {model+"_times": full_times, model+"_emissions": full_fco2fos}
         )], axis=1)
-    
-    #fig.add_trace(go.Scatter(x=full_times, y=full_fco2fos*surface_area, name=mod_id+"_"+mod_dict["exp_id"]+"_"+mod_dict["ensemble"]))
-    #fig.update_layout(title="...", xaxis_title="Time", 
-    #    yaxis_title="Carbon Mass Flux [kg s-1]", showlegend=True)
-
-#fig.show()
-
 
 # Add IPCC A2 model
 A2_times = np.array([0, 1850, 1990, 2000, 2010, 2020, 2030, 2040, 2050, 2060, 2070, 2080, 2090, 2100, 2110, 2120, 10000])
 A2_emissions = np.array([0, 0,  6.875, 8.125, 9.375, 12.5, 14.375, 16.25, 17.5, 19.75, 21.25, 23.125, 26.25, 28.75, 0, 0, 0])
 
 df = pd.concat([df, pd.DataFrame(
-        {"A2_times": A2_times, "A2_emissions": A2_emissions}
+        {"IPCC-A2_times": A2_times, "IPCC-A2_emissions": A2_emissions}
         )], axis=1)
 
 # Save dataframe as csv

@@ -5,7 +5,13 @@ import numpy as np
 from utilities.plotters import plot_integrator_results, plot_emissions_models
 from utilities.emissions import emissions
 
+# Plotting variables
 n_boxes = 9
+#model is one of: "short_sine", "long_sine", "short_exp", "long_exp", "IPCC-A2", "GFDL-ESM2G_esmrcp85",
+#   "CNRM-ESM2-1_esm-ssp585", "MPI-ESM1-2-LR_esm-ssp585", "UKESM1-0-LL_esm-ssp585"
+emissions_models = ["IPCC-A2"]
+integrators = ["rk4", "euler"]
+
 
 if n_boxes == 4:
     title_string = "four box model"
@@ -27,18 +33,8 @@ else:
 # Get rate coefficients from steady-state flux and initial mass
 k = np.divide(initial_fluxes, initial_masses)
 
-# Plot integration for 4 box model
-add_flux_C = True
-add_emissions = True
-
-if add_flux_C:
-    title_string += ", add carbon forcing"
-if add_emissions:
-    title_string += ", add emissions"
-
-
 def main():
-    plot_integrator_results(title_string, args=(initial_masses, k, add_flux_C, add_emissions))
+    plot_integrator_results(title_string, args=(initial_masses, k, emissions_models, integrators))
     #plot_emissions_models()
 
 

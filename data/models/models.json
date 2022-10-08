@@ -4,11 +4,6 @@
         "year_range": [2006, 2096],
         "year_spacing": 5
     },
-    "CNRM-ESM2-1_esm-ssp534-over": {
-        "ensemble": "r1i1p1f3_gr",
-        "year_range": [2015, 2100],
-        "year_spacing": 86
-    },
     "CNRM-ESM2-1_esm-ssp585": {
         "ensemble": "r1i1p1f3_gr",
         "year_range": [2015, 2100],
@@ -17,11 +12,6 @@
     "MPI-ESM1-2-LR_esm-ssp585": {
         "ensemble": "r1i1p1f1_gn",
         "year_range": [2015, 2114],
-        "year_spacing": 20
-    },
-    "MPI-ESM1-2-LR_ssp245-cov-fossil": {
-        "ensemble": "r5i1p1f99_gn",
-        "year_range": [2020, 2059],
         "year_spacing": 20
     },
     "UKESM1-0-LL_esm-ssp585": {
