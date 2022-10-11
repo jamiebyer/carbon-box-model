@@ -15,20 +15,9 @@ import json
 """
 Generates data/model-data.csv from CMIP5 and CMIP6 model data.
 
-
-fco2fos, Carbon Mass Flux into Atmosphere Due to Fossil Fuel Emissions of CO2 [kg m-2 s-1], Amon
-
-Experiments:
-
-
-descriptions: https://www.ipcc-data.org/sim/gcm_monthly/AR5/CMIP5-Experiments.html
-
-esmrcp85: Future projection (2006-2100) forced by RCP8.5. As in experiment 4.2_RCP8.5 but emissions-forced 
-    (with atmospheric CO2 determined by the model itself).
-
-
-ssp585: update of RCP8.5 based on SSP5
-ssp126: update of RCP2.6 based on SSP1
+Data collected from:
+- https://esgf-node.llnl.gov/search/cmip5/
+- https://esgf-index1.ceda.ac.uk/search/cmip6/
 """
 
 with open('data/models/models.json') as json_file:

@@ -7,10 +7,10 @@ from utilities.emissions import emissions
 
 # Plotting variables
 n_boxes = 9
-#model is one of: "short_sine", "long_sine", "short_exp", "long_exp", "IPCC-A2", "GFDL-ESM2G_esmrcp85",
+# possible emissions_models: "short_sine", "long_sine", "short_exp", "long_exp", "IPCC-A2", "GFDL-ESM2G_esmrcp85",
 #   "CNRM-ESM2-1_esm-ssp585", "MPI-ESM1-2-LR_esm-ssp585", "UKESM1-0-LL_esm-ssp585"
-emissions_models = ["IPCC-A2"]
-integrators = ["rk4", "euler"]
+emissions_models = ["IPCC-A2", "GFDL-ESM2G_esmrcp85", "UKESM1-0-LL_esm-ssp585"]
+integrators = ["LSODA"]
 
 
 if n_boxes == 4:
