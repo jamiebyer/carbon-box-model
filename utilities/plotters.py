@@ -7,7 +7,7 @@ from scipy.integrate import solve_ivp
 from utilities.odes import dm_dt
 from utilities.func_rk4 import rk4
 from utilities.euler_method import euler_method
-from utilities.emissions import emissions
+# from utilities.emissions import emissions
 
 
 def plot_integrator_results(title_string, args: tuple):
@@ -21,6 +21,7 @@ def plot_integrator_results(title_string, args: tuple):
     max_step = 1e-3  # dialed max_step down for nine boxes
     m_init, k, emissions_models, integrators = args
 
+    # setup lists to collect results for plotting
     all_t = []
     all_M = []
     delta_t = []
@@ -31,15 +32,19 @@ def plot_integrator_results(title_string, args: tuple):
         for model in emissions_models:
             if integ == "rk4":
                 t_start = time.time()
-                t, M = rk4(fxy=dm_dt, x0=t_min, xf=t_max, y0=m_init, N=n, args=(k, model))
+                t, M = rk4(fxy=dm_dt, x0=t_min, xf=t_max,
+                           y0=m_init, N=n, args=(k, model))
                 t_end = time.time()
             elif integ == "euler":
                 t_start = time.time()
-                t, M = euler_method(fxy=dm_dt, x0=t_min, xf=t_max, y0=m_init, N=n, args=(k, model))
+                t, M = euler_method(fxy=dm_dt, x0=t_min, xf=t_max,
+                                    y0=m_init, N=n, args=(k, model))
                 t_end = time.time()
             else:
                 t_start = time.time()
-                sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max), y0=m_init, method=integ, max_step=max_step, args=(k, model))
+                sol = solve_ivp(fun=dm_dt, t_span=(t_min, t_max),
+                                y0=m_init, method=integ, max_step=max_step,
+                                args=(k, model))
                 t_end = time.time()
                 t = sol.t
                 M = sol.y.T
@@ -63,14 +68,15 @@ def plot_integrator_results(title_string, args: tuple):
         n_cols = 1
         for ii in range(n_plots):
             plt.subplot(n_rows, n_cols, ii + 1)
-            plt.plot(all_t[ii], all_M[ii][:, [0, 1]])  # plotting [0, 1] for just forced atmosphere and surface ocean water
+            # plotting [0, 1] for just forced atmosphere and surface ocean water
+            plt.plot(all_t[ii], all_M[ii][:, [0, 1]])
             plt.xlabel('Time (yr)')
             plt.ylabel('Mass (Gt)')
             plt.title(plot_titles[ii] + ", delta t = " + "{:.2E}".format(delta_t[ii]) + "s")
             
     else:
         fig = plt.figure(figsize=(9, 4), dpi=150)
-        plt.plot(all_t[0], all_M[0][:, [0, 1]])  # plotting [0, 1] for just forced atmosphere and surface ocean water
+        plt.plot(all_t[0], all_M[0][:, [0, 1]])
         plt.xlabel('Time (yr)')
         plt.ylabel('Mass (Gt)')
         plt.title(plot_titles[0] + ", delta t = " + "{:.2E}".format(delta_t[0]) + "s")
@@ -89,6 +95,7 @@ def plot_integrator_results(title_string, args: tuple):
     plt.savefig(f"figures/nine_box_long_wavelength_v1.png")
 
     plt.show()
+
 
 def plot_emissions_models():
     """

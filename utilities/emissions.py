@@ -4,6 +4,7 @@ import pandas as pd
 # model data stored in a csv
 df = pd.read_csv("./data/model-data.csv")
 
+
 def emissions(yr, model):
     """
     Function defining fossil fuel emissions from various models and equations.

@@ -10,7 +10,7 @@ def dm_dt(time, mass_array, k, emissions_model=None):
     dMdt: size 4 or 9 array, change in mass for boxes 1, 2, 5, 7, (3, 4, 6, 8, 9).
     """
 
-    # Update values for fluxes from mass.
+    # Update values for fluxes from mass:
     flux_array = np.multiply(k, mass_array)
 
     flux_in = np.sum(flux_array, axis=1)  # row-wise for in-flux

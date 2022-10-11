@@ -3,15 +3,15 @@ import os
 
 import numpy as np
 from utilities.plotters import plot_integrator_results, plot_emissions_models
-from utilities.emissions import emissions
 
 # Plotting variables
 n_boxes = 9
-# possible emissions_models: "short_sine", "long_sine", "short_exp", "long_exp", "IPCC-A2", "GFDL-ESM2G_esmrcp85",
-#   "CNRM-ESM2-1_esm-ssp585", "MPI-ESM1-2-LR_esm-ssp585", "UKESM1-0-LL_esm-ssp585"
+'''
+possible emissions_models: "short_sine", "long_sine", "short_exp", "long_exp", "IPCC-A2", "GFDL-ESM2G_esmrcp85",
+   "CNRM-ESM2-1_esm-ssp585", "MPI-ESM1-2-LR_esm-ssp585", "UKESM1-0-LL_esm-ssp585"
+'''
 emissions_models = ["IPCC-A2", "GFDL-ESM2G_esmrcp85", "UKESM1-0-LL_esm-ssp585"]
 integrators = ["LSODA"]
-
 
 if n_boxes == 4:
     title_string = "four box model"
@@ -33,9 +33,10 @@ else:
 # Get rate coefficients from steady-state flux and initial mass
 k = np.divide(initial_fluxes, initial_masses)
 
+
 def main():
     plot_integrator_results(title_string, args=(initial_masses, k, emissions_models, integrators))
-    #plot_emissions_models()
+    # plot_emissions_models()
 
 
 if __name__ == '__main__':
